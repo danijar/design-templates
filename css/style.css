@@ -1,0 +1,14 @@
+body{ font-size:10px; margin:0; padding:0; font-family:'Open Sans',sans-serif; }
+
+header{ -webkit-box-sizing:border-box; width:100%; padding:1em; background:#eee; }
+header > *{ vertical-align:middle; }
+header .logo{ display:inline-block; height:4em; width:4em; margin:0 .5em 0 0; background:url(../img/logo.png) center no-repeat; background-size:contain; }
+header h1{ display:inline-block; font-size:3em; margin:0; color:#444; }
+
+.list{ position:relative; padding:3em; overflow:auto; }
+.list table{ width:100%; border-collapse:collapse; }
+.list thead{ margin-top:-6em; padding-top:3em; background:#fff; box-shadow:0 .5em .5em rgba(255,255,255,.8); }
+.list thead tr{ border-bottom:1px solid #ccc; }
+.list tr{ border-bottom:1px solid #eee; }
+.list th{ font-size:1.75em; padding:.2em .65em; color:#07c; font-weight:bold; text-transform:uppercase; text-align:left; }
+.list td{ font-size:1.5em; padding:.75em; }
