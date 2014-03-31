@@ -4,9 +4,9 @@ $(function() {
 	var words = 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.';
 	words = words.replace(/[.,]+/g, '').split(' ');
 
-	// populate header
+	// populate header buttons
 	for (var i = 0; i < 3; ++i)
-		$('header').append('<a href="" class="button">' + _.sample(words) + '</a>');
+		$('header div.right').append('<a href="" class="button">' + _.sample(words) + '</a>');
 
 	// populate list
 	var columns = 5;
@@ -27,6 +27,15 @@ $(function() {
 			var value = _.sample(words, 10).join(' ');
 			$(this).append('<label>' + label + '<br><input type="text" value="' + value + '"></label>');
 		}
+	});
+
+	// populate text articles
+	$('.text').each(function() {
+		var text = '';
+		var paragraphs = $(this).parent().hasClass('major') ? 100 : 10;
+		for (var i = 0; i < paragraphs; ++i)
+			text += '<p>' + _.shuffle(_.sample(words, (words.length / 2) * Math.random() + (words.length / 2))).join(' ') + '</p>';
+		$(this).html(text);
 	});
 
 	// fix table header
@@ -74,6 +83,69 @@ $(function() {
 		element.keydown(update);
 		resize.push(update);
 	});
+
+	// snap into viewport
+	function viewport_init() {
+		$('.viewport').each(function() {
+			// release forced dimensions
+			$(this).css('height', '');
+			$(this).css('width', '');
+			// remove wrapper
+			if ($(this).children('.wrapper').length)
+				$(this).html($(this).children('.wrapper').html());
+			// force to retain dimensions
+			$(this).css({
+				'height': $(this).css('height'),
+				'width':  $(this).css('width'),
+			});
+			// wrap content by fixed box
+			$(this).wrapInner('<div class="wrapper"></div>');
+			// style wrapper
+			$(this).children('.wrapper').css({
+				'position': 'fixed',
+				'box-sizing':     $(this).css('box-sizing'),
+				'padding-top':    $(this).css('padding-top'),
+				'padding-right':  $(this).css('padding-right'),
+				'padding-bottom': $(this).css('padding-bottom'),
+				'padding-left':   $(this).css('padding-left'),
+				'height':         $(this).css('height'),
+				'width':          $(this).css('width'),
+				'left':           $(this).offset().left,
+				'top':            $(this).offset().top,
+			});
+		});
+	}
+	viewport_init();
+	var lastScrollTop = $(document).scrollTop();
+	function viewport_update() {
+		$('.viewport .wrapper').each(function() {
+			var currentScrollTop = $(document).scrollTop();
+			var parent = $(this).parent().parent();
+
+			// scroll element
+			var top = parseInt($(this).css('top'));
+			top -= currentScrollTop - lastScrollTop;
+
+			// clamp inside viewport
+			top = Math.max(top, $(window).height() - $(this).outerHeight());
+			top = Math.min(top, 0);
+
+			// clamp inside parent
+			var parent = $(this).parent().parent();
+			top = Math.min(top, parent.offset().top + parent.height() - $(this).outerHeight());
+			top = Math.max(top, parent.offset().top - currentScrollTop);
+
+			// apply new offset
+			$(this).css('top', top);
+
+			// swap varibles
+			lastScrollTop = currentScrollTop;
+		});
+	}
+	$(document).scroll(viewport_update);
+	viewport_update();
+	resize.push(viewport_init);
+	resize.push(viewport_update);
 
 	// on resize
 	var timeout = false;
