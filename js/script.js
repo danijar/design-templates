@@ -1,6 +1,20 @@
 $(function() {
-	//var resize = new Event('build');
-	var resize = [];
+	// create sane resize event
+	var resize = new Event('resizing');
+	(function() {
+		var timeout = false;
+		$(window).resize(function() {
+			if(!timeout) {
+				timeout = setTimeout(function() {
+					timeout = false;
+					window.dispatchEvent(resize);
+				}, 50);
+			}
+		});
+		// trigger once at startup to initiailze
+		window.dispatchEvent(resize);
+		setTimeout(function() { window.dispatchEvent(resize); }, 50);
+	})();
 
 	// populate with content
 	(function() {
@@ -42,6 +56,13 @@ $(function() {
 		});
 	})();
 
+	// make content span body
+	$(window).on('resizing', function() {
+		$('.content').each(function() {
+			$(this).outerHeight($(window).height() - $(this).offset().top);
+		});
+	});
+
 	// fix table header
 	(function() {
 		$('.list thead').css('position', 'fixed');
@@ -50,7 +71,6 @@ $(function() {
 				var offset = $(this).find('thead').outerHeight();
 				$(this).find('thead').css('margin-top', '-' + offset + 'px')
 				$(this).css('padding-top', offset + 'px');
-				$(this).outerHeight($(window).height() - $(this).offset().top);
 			});
 			var columns = $('.list tbody tr:first-child td').map(function() { return $(this).width(); });
 			$('.list th').each(function(index) {
@@ -58,7 +78,7 @@ $(function() {
 				$(this).width(columns[index]);
 			});
 		}
-		resize.push(update);
+		$(window).on('resizing', update);
 	})();
 
 	// adjust text fields to content
@@ -71,6 +91,7 @@ $(function() {
 				'font-family': $(this).css('font-family'),
 				'font-size': $(this).css('font-size'),
 			}).appendTo('body');
+
 			// adjust width on keydown
 			var self = this;
 			function update() {
@@ -78,41 +99,48 @@ $(function() {
 				setTimeout(function() {
 					// prevent whitespace from being collapsed
 					tag.html($(self).val().replace(/ /g, '&nbsp'));
+
 					// clamp length and prevent text from scrolling
 					var max = $(self).parent().width();
 					var size = Math.max(100, Math.min(max, tag.width() + 10));
 					if (size < max)
 						$(self).scrollLeft(0);
+
 					// apply width to input
 					$(self).width(size);
 
 				}, 0);
 			};
-			update();
+			$(window).on('resizing', update);
 			$(this).keydown(update);
-			resize.push(update);
 		});
 	})();
 
 	// snap into viewport
 	(function() {
+		var scroller = $('.content');
 		function init() {
 			$('.viewport').each(function() {
 				// release forced dimensions
 				$(this).css('height', '');
 				$(this).css('width', '');
+
 				// remove wrapper
 				if ($(this).children('.wrapper').length)
 					$(this).html($(this).children('.wrapper').html());
+
 				// force to retain dimensions
 				$(this).css({
 					'height': $(this).css('height'),
 					'width':  $(this).css('width'),
 				});
+
 				// wrap content by fixed box
 				$(this).wrapInner('<div class="wrapper"></div>');
+
 				// style wrapper
-				$(this).children('.wrapper').css({
+				wrapper = $(this).children('.wrapper');
+				wrapper.css({
 					'position': 'fixed',
 					'box-sizing':     $(this).css('box-sizing'),
 					'padding-top':    $(this).css('padding-top'),
@@ -124,25 +152,31 @@ $(function() {
 					'left':           $(this).offset().left,
 					'top':            $(this).offset().top,
 				});
+
+				// tunnel scroll to parent
+				wrapper.on('mousewheel', function() {
+					var e = window.event;
+					var delta = e.detail ? -e.detail * 100 : e.wheelDelta;
+					var parent = $(this).parent().parent();
+					parent.scrollTop(parent.scrollTop() - delta);
+				});
 			});
 		}
-		var scrolllast = $(document).scrollTop();
+		var scrolllast = scroller.scrollTop();
 		function update() {
 			$('.viewport .wrapper').each(function() {
-				var scrollcurrent = $(document).scrollTop();
-				var parent = $(this).parent().parent();
-
 				// scroll element
+				var scrollcurrent = scroller.scrollTop();
 				var top = parseInt($(this).css('top'));
 				top -= scrollcurrent - scrolllast;
 
 				// clamp inside viewport
 				top = Math.max(top, $(window).height() - $(this).outerHeight());
-				top = Math.min(top, 0);
+				top = Math.min(top, scroller.offset() ? scroller.offset().top : 0);
 
 				// clamp inside parent
 				var parent = $(this).parent().parent();
-				top = Math.min(top, parent.offset().top + parent.height() - $(this).outerHeight());
+				top = Math.min(top, parent.offset().top + parent[0].scrollHeight - $(this).outerHeight());
 				top = Math.max(top, parent.offset().top - scrollcurrent);
 
 				// apply new offset
@@ -152,28 +186,8 @@ $(function() {
 				scrolllast = scrollcurrent;
 			});
 		}
-		init();
-		update();
-		$(document).scroll(update);
-
-		resize.push(init);
-		resize.push(update);
+		$(window).on('resizing', init);
+		$(window).on('resizing', update);
+		scroller.scroll(update);
 	})();
-
-	// on resize
-	var timeout = false;
-	$(window).resize(function() {
-		resizecall();
-		if(!timeout) {
-			timeout = setTimeout(function() {
-				timeout = false;
-				resizecall();
-			}, 100);
-		} else clearTimeout(timeout);
-	});
-	function resizecall() {
-		for (var i = 0; i < resize.length; ++i)
-			resize[i]();
-	}
-	resizecall();
 });
