@@ -42,3 +42,5 @@ article{ font-size:1.5em; padding:1em; }
 .form input[type=text]:focus{ color:#000; border-color:#ccc; box-shadow:0 .1em .3em rgba(0,0,0,.15) inset; outline:none; cursor:auto; }
 .form label{ display:inline-block; -webkit-box-sizing:border-box; width:100%; font-size:1.75em; color:#07c; font-weight:bold; text-transform:uppercase; }
 .form label input[type=text]{ font-size:.8em; margin-top:.3em; margin-left:-.8em; margin-right:-.8em; }
+.form ::-webkit-input-placeholder{ font-style:italic; } .form ::-moz-placeholder{ font-style:italic; } .form :-ms-input-placeholder{ font-style:italic; } .form input:-moz-placeholder{ font-style:italic; }
+.form input:focus::-webkit-input-placeholder{ color:transparent; } .form input:focus::-moz-placeholder{ color:transparent; } .form input:focus:-ms-input-placeholder{ color:transparent; } .form input:input:focus-moz-placeholder{ color:transparent; }
