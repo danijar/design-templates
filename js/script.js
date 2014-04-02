@@ -39,10 +39,14 @@ $(function() {
 
 		// populate form
 		$('.form').each(function() {
-			for (var i = 0; i < 25; ++i) {
-				var label = _.sample(words, 2).join(' ');
-				var value = _.sample(words, 10).join(' ');
-				$(this).append('<label>' + label + '<br><input type="text" placeholder="Click to edit" value="' + value + '"></label>');
+			var fields = parseInt($(this).attr('data')) || 25;
+			for (var i = 0; i < fields; ++i) {
+				var field = '<input type="text" placeholder="Click to edit" value="' + _.sample(words, 10).join(' ') + '">';
+				if (_.random(0, 5) || i == 0)
+					field = '<label>' + _.sample(words, _.random(2, 3)).join(' ') + '<br>' + field + '</label>';
+				else
+					field += '<br>';
+				$(this).append(field);
 			}
 		});
 
@@ -53,7 +57,7 @@ $(function() {
 			var paragraphs = parseInt($(this).attr('data')) || 10;
 			for (var i = 0; i < paragraphs; ++i)
 				text += '<p>' + _.shuffle(_.sample(words, (words.length / 2) * Math.random() + (words.length / 2))).join(' ') + '</p>';
-			$(this).html(text);
+			$(this).append(text);
 		});
 
 		// populate tools
@@ -61,7 +65,7 @@ $(function() {
 			var buttons = '';
 			for (var i = 0; i < 5; ++i)
 				buttons += '<a href="#">' + _.sample([ _.sample(words), _.sample(words, 2).join(' ') ]) + '</a>';
-			$(this).html(buttons);
+			$(this).append(buttons);
 		});
 	})();
 
@@ -71,6 +75,35 @@ $(function() {
 			$(this).outerHeight($(window).height() - $(this).offset().top);
 		});
 	});
+
+	// inject fixed headers
+	(function() {
+		var bar = scrollbar();
+		function init() {
+			$('.fixed').each(function() {
+				// set width in respect to parent and its scrollbar
+				var parent = $(this).parent();
+				var scrollbar = parent[0].offsetHeight < parent[0].scrollHeight ? bar : 0;
+				$(this).outerWidth(parent.outerWidth() - scrollbar);
+
+				// add offset to following element
+				var next = $(this).next();
+				next.css('padding-top', '');
+				next.css('padding-top', parseInt(next.css('padding-top')) + $(this).outerHeight());
+			});
+		}
+		// get scroll bar width
+		function scrollbar() {
+			var div = $('<div>').css({ 'visibility': 'hidden', 'width': 100 }).appendTo('body');
+			var noscroll = div[0].offsetWidth;
+			div.css('overflow', 'scroll');
+			var inner = $('<div>').css('width', '100%').appendTo(div);
+			var scroll = inner[0].offsetWidth;
+			div.remove();
+			return noscroll - scroll;
+		}
+		$(window).on('resizing', init);
+	})();
 
 	// adjust text fields to content
 	(function() {
@@ -119,7 +152,7 @@ $(function() {
 				// make table head fixed
 				head.css({
 					'position': 'fixed',
-					'top':      head.offset().top,
+					'top':      $(this).offset().top,
 					'left':     $(this).offset().left,
 					'width':    $(this).width(),
 				});
@@ -231,34 +264,5 @@ $(function() {
 		$(window).on('resizing', init);
 		$(window).on('resizing', update);
 		scroller.scroll(update);
-	})();
-
-	// inject fixed headers
-	(function() {
-		var bar = scrollbar();
-		function init() {
-			$('.fixed').each(function() {
-				// set width in respect to parent and its scrollbar
-				var parent = $(this).parent();
-				var scrollbar = parent[0].offsetHeight < parent[0].scrollHeight ? bar : 0;
-				$(this).outerWidth(parent.outerWidth() - scrollbar);
-
-				// add offset to following element
-				var next = $(this).next();
-				next.css('padding-top', '');
-				next.css('padding-top', parseInt(next.css('padding-top')) + $(this).outerHeight());
-			});
-		}
-		// get scroll bar width
-		function scrollbar() {
-			var div = $('<div>').css({ 'visibility': 'hidden', 'width': 100 }).appendTo('body');
-			var noscroll = div[0].offsetWidth;
-			div.css('overflow', 'scroll');
-			var inner = $('<div>').css('width', '100%').appendTo(div);
-			var scroll = inner[0].offsetWidth;
-			div.remove();
-			return noscroll - scroll;
-		}
-		$(window).on('resizing', init);
 	})();
 });
