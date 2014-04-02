@@ -54,6 +54,14 @@ $(function() {
 				text += '<p>' + _.shuffle(_.sample(words, (words.length / 2) * Math.random() + (words.length / 2))).join(' ') + '</p>';
 			$(this).html(text);
 		});
+
+		// populate tools
+		$('.tools').each(function() {
+			var buttons = '';
+			for (var i = 0; i < 5; ++i)
+				buttons += '<a href="#">' + _.sample([ _.sample(words), _.sample(words, 2).join(' ') ]) + '</a>';
+			$(this).html(buttons);
+		});
 	})();
 
 	// make content span body
@@ -114,7 +122,7 @@ $(function() {
 					'left':     $(this).offset().left,
 					'width':    $(this).width(),
 				});
-				
+
 				// set padding for fixed table head
 				firstrow.css('padding-top', '').css('padding-top', parseInt(firstrow.css('padding-top')) + head.outerHeight());
 
@@ -181,6 +189,7 @@ $(function() {
 					'width':          $(this).css('width'),
 					'left':           $(this).offset().left,
 					'top':            $(this).offset().top,
+					'z-index':        -1,
 				});
 
 				// tunnel scroll to parent
