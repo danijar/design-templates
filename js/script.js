@@ -26,7 +26,7 @@ $(function() {
 			$('header div.right').append('<a href="" class="button">' + _.sample(words) + '</a>');
 
 		// populate list
-		var columns = 5;
+		var columns = 6;
 		function cells(tag, columns, amount) {
 			var cells = '<tr>';
 			for (var j = 0; j < columns; ++j)
@@ -39,7 +39,7 @@ $(function() {
 
 		// populate form
 		$('.form').each(function() {
-			for (var i = 0; i < 5; ++i) {
+			for (var i = 0; i < 25; ++i) {
 				var label = _.sample(words, 2).join(' ');
 				var value = _.sample(words, 10).join(' ');
 				$(this).append('<label>' + label + '<br><input type="text" placeholder="Click to edit" value="' + value + '"></label>');
@@ -62,24 +62,6 @@ $(function() {
 			$(this).outerHeight($(window).height() - $(this).offset().top);
 		});
 	});
-
-	// fix table header
-	(function() {
-		$('.list thead').css('position', 'fixed');
-		function update() {
-			$('.list').each(function() {
-				var offset = $(this).find('thead').outerHeight();
-				$(this).find('thead').css('margin-top', '-' + offset + 'px')
-				$(this).css('padding-top', offset + 'px');
-			});
-			var columns = $('.list tbody tr:first-child td').map(function() { return $(this).width(); });
-			$('.list th').each(function(index) {
-				if (index > columns.length) return;
-				$(this).width(columns[index]);
-			});
-		}
-		$(window).on('resizing', update);
-	})();
 
 	// adjust text fields to content
 	(function() {
@@ -116,7 +98,55 @@ $(function() {
 		});
 	})();
 
-	// snap into viewport
+	// fix table header
+	(function() {
+		var scroller = $('.content');
+		function init() {
+			$('.list').each(function() {
+				var head     = $(this).children('thead'),
+					body     = $(this).children('tbody'),
+					firstrow = body.find('tr:first-child td');
+
+				// make table head fixed
+				head.css({
+					'position': 'fixed',
+					'top':      head.offset().top,
+					'left':     $(this).offset().left,
+					'width':    $(this).width(),
+				});
+				
+				// set padding for fixed table head
+				firstrow.css('padding-top', '').css('padding-top', parseInt(firstrow.css('padding-top')) + head.outerHeight());
+
+				// get cell widths from table body
+				var columns = firstrow.map(function() { return $(this).width(); });
+				$(this).find('th').each(function(index) {
+					if (index < columns.length)
+						$(this).width(columns[index]);
+				});
+			});
+		}
+		var scroller = $('.content');
+		function update() {
+			$('.list thead').each(function() {
+				// scroll element
+				var table = $(this).parent();
+				var top = table.offset().top;
+
+				// clamp inside viewport and parent
+				top = Math.max(top, scroller.offset().top);
+				top = Math.min(top, table.offset().top + table.outerHeight() - $(this).outerHeight());
+
+				// apply new offset
+				$(this).css('top', top);
+			});
+		}
+		$(window).on('resizing', init);
+		$(window).on('resizing', update);
+		scroller.scroll(update);
+	})();
+
+	// snap inside viewport
 	(function() {
 		var scroller = $('.content');
 		function init() {

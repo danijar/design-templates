@@ -1,5 +1,5 @@
 /* global defaults */
-body{ font-size:10px; margin:0; padding:0; font-family:'Open Sans',sans-serif; overflow-x:hidden; }
+body{ font-size:10px; margin:0; padding:0; font-family:'Open Sans',sans-serif; overflow:hidden; }
 a{ text-decoration:none; cursor:pointer; color:#07c; }
 a:active{ outline:none; }
 img{ max-width:100%; }
@@ -10,20 +10,21 @@ iframe{ border:none; }
 /* generic classes */
 .left, .lefts > *{ float:left; } .right, .rights > *{ float:right; }
 .clearfix:after, .clearfixes > *:after, .container:after, section:after, article:after, aside:after, .content:after{ content:" "; display:block; height:0; clear:both; overflow:hidden; visibility:hidden; }
-.borderbox, .borderboxes > *, section, article, aside, header{ position:relative; -moz-box-sizing:border-box; box-sizing:border-box; }
-.hyphen, .hyphens, article{ text-align:justify; -webkit-hyphens:auto; -moz-hyphens:auto; hyphens:auto; } a{ -webkit-hyphens:none; -moz-hyphens:none; hyphens:none; }
+.borderbox, .borderboxes > *, section, article, aside, header, .list{ position:relative; -moz-box-sizing:border-box; box-sizing:border-box; }
+.hyphen, .hyphens, article p{ text-align:justify; -webkit-hyphens:auto; -moz-hyphens:auto; hyphens:auto; } a{ -webkit-hyphens:none; -moz-hyphens:none; hyphens:none; }
 
 /* layout */
 .major{ width:calc(100% - 40em); min-width:66%; }
 .minor{ width:40em; max-width:33%; }
-article{ font-size:1.5em; padding:1em; }
+article{ font-size:1.5em; padding:2em; }
+article + article{ padding-top:0; }
 .content{ position:relative; overflow:auto; }
 
 /* header */
-header{ width:100%; padding:1em; background:#eee; box-shadow:0 0 0 1px #fafafa, 0 0 0 2px #d5d5d5, 0 0 1em rgba(0,0,0,.3); z-index:1; }
+header{ width:100%; padding:1em; background:#eee; box-shadow:0 0 0 1px #f5f5f5, 0 0 0 2px #d5d5d5, 0 0 1em rgba(0,0,0,.3); z-index:1; }
 header > *{ vertical-align:middle; }
 header .logo{ display:inline-block; height:4em; width:4em; margin:0 .5em 0 0; background:url(../img/logo.png) center no-repeat; background-size:contain; }
-header h1{ display:inline-block; font-size:3em; margin:0; color:#444; }
+header h1{ display:inline-block; font-size:3em; margin:0; color:#444; text-shadow:0 1px 1px rgba(255,255,255,.8); }
 
 /* button */
 .button{ display:inline-block; font-size:1.25em; margin:0 .5em; padding:.75em 1em; background:#007cd5; color:#f5f5f5; text-decoration:none; border:1px solid #06b; border-radius:.2em; box-shadow:0 .05em .3em rgba(0,0,0,.2); transition:color .05s, background .05s, box-shadow .05s; }
@@ -32,20 +33,18 @@ header h1{ display:inline-block; font-size:3em; margin:0; color:#444; }
 .button:active{ background:#06b; box-shadow:none; transition:none; }
 
 /* list */
-.list{ position:relative; padding:3em; }
-.list table{ width:100%; border-collapse:collapse; }
-.list thead{ margin-top:-6em; padding-top:3em; background:#fff; box-shadow:0 .5em .5em rgba(255,255,255,.8); }
+.list{ border-collapse:collapse; }
+.list thead{ padding:1em 0 0; background:#fff; box-shadow:0 .5em .5em rgba(255,255,255,.8); }
 .list thead tr{ border-bottom:1px solid #ccc; }
 .list tr{ border-bottom:1px solid #eee; }
-.list th{ font-size:1.75em; padding:.2em .65em; color:#07c; font-weight:bold; text-transform:uppercase; text-align:left; }
-.list td{ font-size:1.5em; padding:.75em; }
+.list th{ font-size:1.17em; padding:.2em .6em; color:#07c; font-weight:bold; text-transform:uppercase; text-align:left; }
+.list td{ font-size:1em; padding:.5em; }
 
 /* form */
-.form{ position:relative; padding:3em; }
-.form input[type=text]{ -webkit-box-sizing:border-box; font-size:1.5em; margin-bottom:1em; padding:.75em; color:#666; background:#fff; border:1px solid transparent; cursor:pointer; }
+.form input[type=text]{ -webkit-box-sizing:border-box; font-size:1em; margin-bottom:1em; padding:.75em; color:#666; background:#fff; border:1px solid transparent; cursor:pointer; }
 .form input[type=text]:hover{ color:#000; }
 .form input[type=text]:focus{ color:#000; border-color:#ccc; box-shadow:0 .1em .3em rgba(0,0,0,.15) inset; outline:none; cursor:auto; }
-.form label{ display:inline-block; -webkit-box-sizing:border-box; width:100%; font-size:1.75em; color:#07c; font-weight:bold; text-transform:uppercase; }
+.form label{ display:inline-block; -webkit-box-sizing:border-box; width:100%; font-size:1.17em; color:#07c; font-weight:bold; text-transform:uppercase; }
 .form label input[type=text]{ font-size:.8em; margin-top:.3em; margin-left:-.8em; margin-right:-.8em; }
 .form ::-webkit-input-placeholder{ font-style:italic; } .form ::-moz-placeholder{ font-style:italic; } .form :-ms-input-placeholder{ font-style:italic; } .form input:-moz-placeholder{ font-style:italic; }
 .form input:focus::-webkit-input-placeholder{ color:transparent; } .form input:focus::-moz-placeholder{ color:transparent; } .form input:focus:-ms-input-placeholder{ color:transparent; } .form input:input:focus-moz-placeholder{ color:transparent; }
