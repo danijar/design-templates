@@ -47,9 +47,10 @@ $(function() {
 		});
 
 		// populate text articles
+		// number of paragraphs can be specified as data attribute
 		$('.text').each(function() {
 			var text = '';
-			var paragraphs = $(this).parent().hasClass('major') ? 100 : 10;
+			var paragraphs = parseInt($(this).attr('data')) || 10;
 			for (var i = 0; i < paragraphs; ++i)
 				text += '<p>' + _.shuffle(_.sample(words, (words.length / 2) * Math.random() + (words.length / 2))).join(' ') + '</p>';
 			$(this).html(text);
@@ -142,7 +143,8 @@ $(function() {
 				var top = table.offset().top;
 
 				// clamp inside viewport and parent
-				top = Math.max(top, scroller.offset().top);
+				var fixed = scroller.children('.fixed').length ? scroller.children('.fixed').outerHeight() : 0;
+				top = Math.max(top, scroller.offset().top + fixed);
 				top = Math.min(top, table.offset().top + table.outerHeight() - $(this).outerHeight());
 
 				// apply new offset
@@ -210,13 +212,14 @@ $(function() {
 				top -= scrollcurrent - scrolllast;
 
 				// clamp inside viewport
+				var fixed = scroller.children('.fixed').length ? scroller.children('.fixed').outerHeight() : 0;
 				top = Math.max(top, $(window).height() - $(this).outerHeight());
-				top = Math.min(top, scroller.offset() ? scroller.offset().top : 0);
+				top = Math.min(top, (scroller.offset() ? scroller.offset().top : 0) + fixed);
 
 				// clamp inside parent
 				var parent = $(this).parent().parent();
 				top = Math.min(top, parent.offset().top + parent[0].scrollHeight - $(this).outerHeight());
-				top = Math.max(top, parent.offset().top - scrollcurrent);
+				top = Math.max(top, parent.offset().top - scrollcurrent + fixed);
 
 				// apply new offset
 				$(this).css('top', top);
@@ -228,5 +231,34 @@ $(function() {
 		$(window).on('resizing', init);
 		$(window).on('resizing', update);
 		scroller.scroll(update);
+	})();
+
+	// inject fixed headers
+	(function() {
+		var bar = scrollbar();
+		function init() {
+			$('.fixed').each(function() {
+				// set width in respect to parent and its scrollbar
+				var parent = $(this).parent();
+				var scrollbar = parent[0].offsetHeight < parent[0].scrollHeight ? bar : 0;
+				$(this).outerWidth(parent.outerWidth() - scrollbar);
+
+				// add offset to following element
+				var next = $(this).next();
+				next.css('padding-top', '');
+				next.css('padding-top', parseInt(next.css('padding-top')) + $(this).outerHeight());
+			});
+		}
+		// get scroll bar width
+		function scrollbar() {
+			var div = $('<div>').css({ 'visibility': 'hidden', 'width': 100 }).appendTo('body');
+			var noscroll = div[0].offsetWidth;
+			div.css('overflow', 'scroll');
+			var inner = $('<div>').css('width', '100%').appendTo(div);
+			var scroll = inner[0].offsetWidth;
+			div.remove();
+			return noscroll - scroll;
+		}
+		$(window).on('resizing', init);
 	})();
 });
